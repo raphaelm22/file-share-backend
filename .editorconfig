@@ -1,0 +1,267 @@
+root = true
+# EditorConfig: http://EditorConfig.org
+
+# top-most EditorConfig file
+
+[*]
+indent_style = space
+
+
+[*.cs]
+indent_size = 4
+charset = utf-8
+insert_final_newline = true
+end_of_line = crlf
+
+# Declare types in namespaces
+dotnet_diagnostic.CA1050.severity = None
+
+# Use Literals Where Appropriate
+dotnet_diagnostic.CA1802.severity = error
+
+# Do not initialize unnecessarily
+dotnet_diagnostic.CA1805.severity = error
+
+# Avoid unsealed attributes
+dotnet_diagnostic.CA1813.severity = error
+
+# Test for empty strings using string length
+dotnet_diagnostic.CA1820.severity = none
+
+# Remove empty finalizers
+dotnet_diagnostic.CA1821.severity = error
+
+# Mark members as static
+dotnet_diagnostic.CA1822.severity = suggestion
+
+# Avoid unused private fields
+dotnet_diagnostic.CA1823.severity = error
+
+# Avoid zero-length array allocations
+dotnet_diagnostic.CA1825.severity = error
+
+# Use property instead of Linq Enumerable method
+dotnet_diagnostic.CA1826.severity = error
+
+# Do not use Count()/LongCount() when Any() can be used
+dotnet_diagnostic.CA1827.severity = error
+dotnet_diagnostic.CA1828.severity = error
+
+# Use Length/Count property instead of Enumerable.Count method
+dotnet_diagnostic.CA1829.severity = error
+
+# Prefer strongly-typed Append and Insert method overloads on StringBuilder
+dotnet_diagnostic.CA1830.severity = error
+
+# Use AsSpan instead of Range-based indexers for string when appropriate
+dotnet_diagnostic.CA1831.severity = error
+
+# Use AsSpan instead of Range-based indexers for string when appropriate
+dotnet_diagnostic.CA1831.severity = error
+dotnet_diagnostic.CA1832.severity = error
+dotnet_diagnostic.CA1833.severity = error
+
+# Use StringBuilder.Append(char) for single character strings
+dotnet_diagnostic.CA1834.severity = error
+
+# Prefer IsEmpty over Count when available
+dotnet_diagnostic.CA1836.severity = error
+
+# Prefer IsEmpty over Count when available
+dotnet_diagnostic.CA1836.severity = error
+
+# Use Environment.ProcessId instead of Process.GetCurrentProcess().Id
+dotnet_diagnostic.CA1837.severity = error
+
+# Use Environment.ProcessPath instead of Process.GetCurrentProcess().MainModule.FileName
+dotnet_diagnostic.CA1839.severity = error
+
+# Use Environment.CurrentManagedThreadId instead of Thread.CurrentThread.ManagedThreadId
+dotnet_diagnostic.CA1840.severity = error
+
+# Prefer Dictionary Contains methods
+dotnet_diagnostic.CA1841.severity = error
+
+# Do not use WhenAll with a single task
+dotnet_diagnostic.CA1842.severity = error
+
+# Do not use WhenAll/WaitAll with a single task
+dotnet_diagnostic.CA1842.severity = error
+dotnet_diagnostic.CA1843.severity = error
+
+# Use span-based 'string.Concat'
+dotnet_diagnostic.CA1845.severity = error
+
+# Prefer AsSpan over Substring
+dotnet_diagnostic.CA1846.severity = error
+
+# Use string.Contains(char) instead of string.Contains(string) with single characters
+dotnet_diagnostic.CA1847.severity = error
+
+# Prefer static HashData method over ComputeHash
+dotnet_diagnostic.CA1850.severity = error
+
+# Possible multiple enumerations of IEnumerable collection
+dotnet_diagnostic.CA1851.severity = error
+
+# Seal internal types
+dotnet_diagnostic.CA1852.severity = warning
+
+# Unnecessary call to Dictionary.ContainsKey(key)
+dotnet_diagnostic.CA1853.severity = error
+
+# Prefer the IDictionary.TryGetValue(TKey, out TValue) method
+dotnet_diagnostic.CA1854.severity = error
+
+# Use Span<T>.Clear() instead of Span<T>.Fill()
+dotnet_diagnostic.CA1855.severity = error
+
+# Incorrect usage of ConstantExpected attribute
+dotnet_diagnostic.CA1856.severity = error
+
+# The parameter expects a constant for optimal performance
+dotnet_diagnostic.CA1857.severity = error
+
+# Use StartsWith instead of IndexOf
+dotnet_diagnostic.CA1858.severity = error
+
+# Avoid using Enumerable.Any() extension method
+dotnet_diagnostic.CA1860.severity = error
+
+# Avoid constant arrays as arguments
+dotnet_diagnostic.CA1861.severity = error
+
+# Use the StringComparison method overloads to perform case-insensitive string comparisons
+dotnet_diagnostic.CA1862.severity = error
+
+# Prefer the IDictionary.TryAdd(TKey, TValue) method
+dotnet_diagnostic.CA1864.severity = error
+
+# Use string.Method(char) instead of string.Method(string) for string with single char
+dotnet_diagnostic.CA1865.severity = error
+dotnet_diagnostic.CA1866.severity = error
+dotnet_diagnostic.CA1867.severity = error
+
+# Unnecessary call to 'Contains' for sets
+dotnet_diagnostic.CA1868.severity = error
+
+# Cache and reuse 'JsonSerializerOptions' instances
+dotnet_diagnostic.CA1869.severity = error
+
+# Use a cached 'SearchValues' instance
+dotnet_diagnostic.CA1870.severity = error
+
+# Template should be a static expression
+dotnet_diagnostic.CA2254.severity = warning
+
+# Use expression body for constructors
+dotnet_diagnostic.IDE0021.severity = suggestion
+
+# Use expression body for methods
+dotnet_diagnostic.IDE0022.severity = suggestion
+
+# Microsoft .NET properties
+trim_trailing_whitespace = true
+csharp_preferred_modifier_order = public, private, protected, internal, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async:suggestion
+dotnet_naming_rule.private_constants_rule.severity = warning
+dotnet_naming_rule.private_constants_rule.style = lower_camel_case_style
+dotnet_naming_rule.private_constants_rule.symbols = private_constants_symbols
+
+dotnet_naming_rule.private_instance_fields_rule.severity = warning
+dotnet_naming_rule.private_instance_fields_rule.style = underscored_camel_case_style
+dotnet_naming_rule.private_instance_fields_rule.symbols = private_instance_fields_symbols
+
+dotnet_naming_rule.private_static_fields_rule.severity = warning
+dotnet_naming_rule.private_static_fields_rule.style = lower_camel_case_style
+dotnet_naming_rule.private_static_fields_rule.symbols = private_static_fields_symbols
+
+dotnet_naming_rule.private_static_readonly_rule.severity = warning
+dotnet_naming_rule.private_static_readonly_rule.style = underscored_camel_case_style
+dotnet_naming_rule.private_static_readonly_rule.symbols = private_static_readonly_symbols
+
+dotnet_naming_style.lower_camel_case_style.capitalization = camel_case
+dotnet_naming_style.upper_camel_case_style.capitalization = pascal_case
+dotnet_naming_style.underscored_camel_case_style.capitalization = camel_case
+dotnet_naming_style.underscored_camel_case_style.required_prefix = _
+
+dotnet_naming_symbols.private_constants_symbols.applicable_accessibilities = private
+dotnet_naming_symbols.private_constants_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_constants_symbols.required_modifiers = const
+
+dotnet_naming_symbols.private_instance_fields_symbols.applicable_accessibilities = private
+dotnet_naming_symbols.private_instance_fields_symbols.applicable_kinds = field
+
+dotnet_naming_symbols.private_static_fields_symbols.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields_symbols.required_modifiers = static
+
+dotnet_naming_symbols.private_static_readonly_symbols.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_readonly_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_static_readonly_symbols.required_modifiers = static, readonly
+
+dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:none
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:none
+dotnet_style_parentheses_in_relational_binary_operators = never_if_unnecessary:none
+
+# Sort using and Import directives with System.* appearing first
+dotnet_sort_system_directives_first = true
+
+# Avoid "this." and "Me." if not necessary
+dotnet_style_qualification_for_field = false:error
+dotnet_style_qualification_for_property = false:error
+dotnet_style_qualification_for_method = false:error
+dotnet_style_qualification_for_event = false:error
+
+# Use language keywords instead of framework type names for type references
+dotnet_style_predefined_type_for_locals_parameters_members = true:error
+dotnet_style_predefined_type_for_member_access = true:error
+
+# Suggest more modern language features when available
+dotnet_style_object_initializer = true:error
+dotnet_style_collection_initializer = true:error
+dotnet_style_coalesce_expression = false:error
+dotnet_style_null_propagation = true:error
+dotnet_style_explicit_tuple_names = true:error
+
+# Prefer "var" everywhere
+csharp_style_var_for_built_in_types = true:error
+csharp_style_var_when_type_is_apparent = true:error
+csharp_style_var_elsewhere = true:error
+
+# Prefer method-like constructs to have a block body
+csharp_style_expression_bodied_methods = true:error
+csharp_style_expression_bodied_local_functions = true:error
+csharp_style_expression_bodied_constructors = true:error
+csharp_style_expression_bodied_operators = true:error
+
+# Prefer property-like constructs to have an expression-body
+csharp_style_expression_bodied_properties = true:error
+csharp_style_expression_bodied_indexers = true:error
+csharp_style_expression_bodied_accessors = true:error
+
+# Suggest more modern language features when available
+csharp_style_pattern_matching_over_is_with_cast_check = true:error
+csharp_style_pattern_matching_over_as_with_null_check = true:error
+csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_throw_expression = true:suggestion
+csharp_style_conditional_delegate_call = true:suggestion
+
+# Newline settings
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_new_line_before_members_in_object_initializers = true
+csharp_new_line_before_members_in_anonymous_types = true
+dotnet_style_require_accessibility_modifiers = never:error
+
+# Spelling
+spelling_languages = en-us,pt-br
+spelling_exclusion_path = .\exclusion.dic
+
+# Xml files
+[*.{xml,config,nuspec,resx,vsixmanifest,csproj,targets,props,fsproj}]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
