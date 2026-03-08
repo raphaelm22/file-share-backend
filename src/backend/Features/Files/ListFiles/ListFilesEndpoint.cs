@@ -23,7 +23,7 @@ public static class ListFilesEndpoint
             .Where(x => !x.rel.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
                 .Any(segment => segment.StartsWith('.')))
             .Select(x => (info: new FileInfo(x.path), x.rel))
-            .Where(x => x.info.Exists)
+            .Where(x => x.info.Exists && !x.info.Attributes.HasFlag(FileAttributes.Directory))
             .Select(x =>
             {
                 var dir = Path.GetDirectoryName(x.rel) ?? "";
