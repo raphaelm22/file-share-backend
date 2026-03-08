@@ -38,11 +38,8 @@ public sealed class ListSharesEndpointTests : IDisposable
     [Fact]
     public async Task Handle_EmptyDatabase_ReturnsEmptyArray()
     {
-        // Arrange
-        var query = new ListSharesQuery();
-
         // Act
-        var result = await ListSharesEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Empty(result);
@@ -61,7 +58,7 @@ public sealed class ListSharesEndpointTests : IDisposable
         await _db.SaveChangesAsync();
 
         // Act
-        var result = await ListSharesEndpoint.Handle(new ListSharesQuery(), _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Single(result);
@@ -83,7 +80,7 @@ public sealed class ListSharesEndpointTests : IDisposable
         await _db.SaveChangesAsync();
 
         // Act
-        var result = await ListSharesEndpoint.Handle(new ListSharesQuery(), _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Single(result);
@@ -102,7 +99,7 @@ public sealed class ListSharesEndpointTests : IDisposable
         await _db.SaveChangesAsync();
 
         // Act
-        var result = await ListSharesEndpoint.Handle(new ListSharesQuery(), _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Single(result);
@@ -122,7 +119,7 @@ public sealed class ListSharesEndpointTests : IDisposable
         await _db.SaveChangesAsync();
 
         // Act
-        var result = await ListSharesEndpoint.Handle(new ListSharesQuery(), _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Single(result);
@@ -143,7 +140,7 @@ public sealed class ListSharesEndpointTests : IDisposable
         await _db.SaveChangesAsync();
 
         // Act
-        var result = await ListSharesEndpoint.Handle(new ListSharesQuery(), _repo, NullLoggerFactory.Instance, default);
+        var result = await ListSharesEndpoint.Handle(_repo, NullLoggerFactory.Instance, default);
 
         // Assert
         Assert.Single(result);
