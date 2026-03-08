@@ -10,4 +10,4 @@ WORKDIR /app
 RUN mkdir -p /app/data /app/shared-files
 COPY --from=build /app/publish .
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "backend.dll"]
+ENTRYPOINT ["dotnet", "FileShare.dll"]
