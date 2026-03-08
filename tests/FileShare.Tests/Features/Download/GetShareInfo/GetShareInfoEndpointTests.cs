@@ -52,10 +52,8 @@ public sealed class GetShareInfoEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new GetShareInfoQuery(new string('a', 64));
-
         // Act
-        var result = await GetShareInfoEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('a', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var ok = Assert.IsType<Ok<ShareInfoResponse>>(result);
@@ -70,10 +68,8 @@ public sealed class GetShareInfoEndpointTests : IDisposable
     public async Task Handle_TokenNotFound_Returns404WithTokenNotFoundDetail()
     {
         // Arrange
-        var query = new GetShareInfoQuery(new string('z', 64));
-
         // Act
-        var result = await GetShareInfoEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('z', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -96,10 +92,8 @@ public sealed class GetShareInfoEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow.AddHours(-25)
         });
         await _db.SaveChangesAsync();
-        var query = new GetShareInfoQuery(new string('e', 64));
-
         // Act
-        var result = await GetShareInfoEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('e', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -121,10 +115,8 @@ public sealed class GetShareInfoEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new GetShareInfoQuery(new string('f', 64));
-
         // Act
-        var result = await GetShareInfoEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('f', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -147,10 +139,8 @@ public sealed class GetShareInfoEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new GetShareInfoQuery(new string('i', 64));
-
         // Act
-        var result = await GetShareInfoEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('i', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var ok = Assert.IsType<Ok<ShareInfoResponse>>(result);

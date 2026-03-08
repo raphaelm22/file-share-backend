@@ -52,10 +52,8 @@ public sealed class DownloadFileEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new DownloadFileQuery(new string('a', 64));
-
         // Act
-        var result = await DownloadFileEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('a', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var fileResult = Assert.IsType<PhysicalFileHttpResult>(result);
@@ -80,10 +78,8 @@ public sealed class DownloadFileEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new DownloadFileQuery(new string('d', 64));
-
         // Act
-        var result = await DownloadFileEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('d', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var fileResult = Assert.IsType<PhysicalFileHttpResult>(result);
@@ -95,10 +91,8 @@ public sealed class DownloadFileEndpointTests : IDisposable
     public async Task Handle_TokenNotFound_Returns404WithTokenNotFoundDetail()
     {
         // Arrange
-        var query = new DownloadFileQuery(new string('x', 64));
-
         // Act
-        var result = await DownloadFileEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('x', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -121,10 +115,8 @@ public sealed class DownloadFileEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow.AddHours(-26)
         });
         await _db.SaveChangesAsync();
-        var query = new DownloadFileQuery(new string('b', 64));
-
         // Act
-        var result = await DownloadFileEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('b', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -146,10 +138,8 @@ public sealed class DownloadFileEndpointTests : IDisposable
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync();
-        var query = new DownloadFileQuery(new string('c', 64));
-
         // Act
-        var result = await DownloadFileEndpoint.Handle(query, _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('c', 64), _repo, NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);

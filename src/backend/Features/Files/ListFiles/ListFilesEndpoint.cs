@@ -18,11 +18,19 @@ public static class ListFilesEndpoint
 
         logger.LogInformation("Listing files in monitored folder: {Folder}", folder);
 
-        return Directory.GetFiles(folder)
-            .Where(path => !Path.GetFileName(path).StartsWith('.'))
-            .Select(path => new FileInfo(path))
-            .Where(info => info.Exists)
-            .Select(info => new ListFilesResponse(info.FullName, info.Name, info.Length, new DateTimeOffset(info.LastWriteTimeUtc)))
+        return Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
+            .Select(path => (path, rel: Path.GetRelativePath(folder, path)))
+            .Where(x => !x.rel.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                .Any(segment => segment.StartsWith('.')))
+            .Select(x => (info: new FileInfo(x.path), x.rel))
+            .Where(x => x.info.Exists)
+            .Select(x =>
+            {
+                var dir = Path.GetDirectoryName(x.rel) ?? "";
+                dir = dir.Replace('\\', '/');
+                if (dir == ".") dir = "";
+                return new ListFilesResponse(x.info.FullName, x.info.Name, x.info.Length, new DateTimeOffset(x.info.LastWriteTimeUtc), dir);
+            })
             .ToArray();
     }
 }

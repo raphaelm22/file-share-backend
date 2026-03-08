@@ -9,9 +9,9 @@ public sealed class ListFilesEndpointTests
     [Fact]
     public void Handle_EmptyDirectory_ReturnsEmptyArray()
     {
-        // Arrange & Act & Assert
         WithTempDir(tempDir =>
         {
+            // Arrange
             var config = BuildConfig(tempDir);
 
             // Act
@@ -25,7 +25,7 @@ public sealed class ListFilesEndpointTests
     [Fact]
     public void Handle_DirectoryWithFiles_ReturnsFilesMetadata()
     {
-        // Arrange & Act & Assert
+        // Arrange
         WithTempDir(tempDir =>
         {
             File.WriteAllText(Path.Combine(tempDir, "alpha.txt"), "hello");
@@ -42,6 +42,49 @@ public sealed class ListFilesEndpointTests
             Assert.All(result, r => Assert.NotEqual(default, r.ModifiedAt));
             Assert.All(result, r => Assert.Equal(TimeSpan.Zero, r.ModifiedAt.Offset));
             Assert.All(result, r => Assert.StartsWith(tempDir, r.FilePath));
+            Assert.All(result, r => Assert.Equal("", r.Directory));
+        });
+    }
+
+    [Fact]
+    public void Handle_FileInSubdirectory_ReturnsCorrectDirectory()
+    {
+        // Arrange
+        WithTempDir(tempDir =>
+        {
+            var backupsDir = Directory.CreateDirectory(Path.Combine(tempDir, "backups"));
+            File.WriteAllText(Path.Combine(tempDir, "root_file.txt"), "");
+            File.WriteAllText(Path.Combine(backupsDir.FullName, "backup.tar"), "");
+            var config = BuildConfig(tempDir);
+
+            // Act
+            var result = ListFilesEndpoint.Handle(new ListFilesQuery(), config, NullLoggerFactory.Instance);
+
+            // Assert
+            var rootFile = result.Single(f => f.FileName == "root_file.txt");
+            Assert.Equal("", rootFile.Directory);
+
+            var backupFile = result.Single(f => f.FileName == "backup.tar");
+            Assert.Equal("backups", backupFile.Directory);
+        });
+    }
+
+    [Fact]
+    public void Handle_FileInNestedSubdirectory_ReturnsFullRelativePath()
+    {
+        // Arrange
+        WithTempDir(tempDir =>
+        {
+            var nestedDir = Directory.CreateDirectory(Path.Combine(tempDir, "backups", "2025"));
+            File.WriteAllText(Path.Combine(nestedDir.FullName, "archive.zip"), "");
+            var config = BuildConfig(tempDir);
+
+            // Act
+            var result = ListFilesEndpoint.Handle(new ListFilesQuery(), config, NullLoggerFactory.Instance);
+
+            // Assert
+            var archiveFile = result.Single(f => f.FileName == "archive.zip");
+            Assert.Equal("backups/2025", archiveFile.Directory);
         });
     }
 
@@ -60,7 +103,7 @@ public sealed class ListFilesEndpointTests
     [Fact]
     public void Handle_DirectoryWithHiddenFiles_FiltersHiddenFiles()
     {
-        // Arrange & Act & Assert
+        // Arrange
         WithTempDir(tempDir =>
         {
             File.WriteAllText(Path.Combine(tempDir, "visible.txt"), "content");
@@ -72,6 +115,27 @@ public sealed class ListFilesEndpointTests
             var result = ListFilesEndpoint.Handle(new ListFilesQuery(), config, NullLoggerFactory.Instance);
 
             // Assert
+            Assert.Single(result);
+            Assert.Equal("visible.txt", result[0].FileName);
+            Assert.Equal("", result[0].Directory);
+        });
+    }
+
+    [Fact]
+    public void Handle_FileInHiddenDirectory_FiltersFile()
+    {
+        // Arrange
+        WithTempDir(tempDir =>
+        {
+            var hiddenDir = Directory.CreateDirectory(Path.Combine(tempDir, ".secret"));
+            File.WriteAllText(Path.Combine(tempDir, "visible.txt"), "");
+            File.WriteAllText(Path.Combine(hiddenDir.FullName, "private.txt"), "");
+            var config = BuildConfig(tempDir);
+
+            // Act
+            var result = ListFilesEndpoint.Handle(new ListFilesQuery(), config, NullLoggerFactory.Instance);
+
+            // Assert — arquivo em diretório oculto não deve aparecer
             Assert.Single(result);
             Assert.Equal("visible.txt", result[0].FileName);
         });

@@ -24,7 +24,7 @@ public static class CreateShareEndpoint
                 detail: "TTL_MUST_BE_POSITIVE",
                 statusCode: 422,
                 title: "Invalid TTL",
-                type: "https://fileshare.raphaelm22.net/errors/invalid-ttl");
+                type: "/errors/invalid-ttl");
         }
 
         if (!File.Exists(command.FilePath))
@@ -34,7 +34,7 @@ public static class CreateShareEndpoint
                 detail: "FILE_NOT_FOUND",
                 statusCode: 422,
                 title: "File not found",
-                type: "https://fileshare.raphaelm22.net/errors/file-not-found");
+                type: "/errors/file-not-found");
         }
 
         var fileInfo = new FileInfo(command.FilePath);

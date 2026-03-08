@@ -49,17 +49,17 @@ public static class ShareValidation
         detail: "TOKEN_NOT_FOUND",
         statusCode: 404,
         title: "Share not found",
-        type: "https://fileshare.raphaelm22.net/errors/token-not-found");
+        type: "/errors/token-not-found");
 
     static IResult ShareExpired() => TypedResults.Problem(
         detail: "SHARE_EXPIRED_OR_INVALID",
         statusCode: 404,
         title: "Share expired or invalid",
-        type: "https://fileshare.raphaelm22.net/errors/share-expired-or-invalid");
+        type: "/errors/share-expired-or-invalid");
 
     static IResult FileNotFound() => TypedResults.Problem(
         detail: "FILE_NOT_FOUND",
         statusCode: 404,
         title: "File not found",
-        type: "https://fileshare.raphaelm22.net/errors/file-not-found");
+        type: "/errors/file-not-found");
 }
