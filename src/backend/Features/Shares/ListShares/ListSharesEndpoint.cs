@@ -8,7 +8,6 @@ public static class ListSharesEndpoint
 {
     [WolverineGet("/api/v1/shares")]
     public static async Task<ListSharesResponse[]> Handle(
-        ListSharesQuery query,
         IReadRepositoryBase<Share> repo,
         ILoggerFactory loggerFactory,
         CancellationToken ct)
