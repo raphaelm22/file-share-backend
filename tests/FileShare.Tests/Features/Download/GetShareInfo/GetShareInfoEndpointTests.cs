@@ -148,4 +148,29 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         Assert.Null(ok.Value!.ExpiresAt);
         Assert.Equal(DateTimeKind.Utc, ok.Value.CreatedAt.Kind);
     }
+
+    [Fact]
+    public async Task JsonRoute_ValidToken_ReturnsSameShareInfo()
+    {
+        // Arrange
+        var filePath = CreateTempFile();
+        await _db.Shares.AddAsync(new Share
+        {
+            Token = new string('7', 64),
+            FilePath = filePath,
+            FileName = "json-route.pdf",
+            FileSize = 4096,
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        // Act
+        var result = await GetShareInfoJsonEndpoint.Handle(new string('7', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+
+        // Assert
+        var ok = Assert.IsType<Ok<ShareInfoResponse>>(result);
+        Assert.Equal("json-route.pdf", ok.Value!.FileName);
+        Assert.Equal(4096, ok.Value.FileSize);
+    }
 }
