@@ -12,6 +12,7 @@ public static class CreateShareEndpoint
         CreateShareCommand command,
         IRepositoryBase<Share> repo,
         SasTokenService tokenService,
+        MonitoredFolderGuard folderGuard,
         ILoggerFactory loggerFactory,
         CancellationToken ct)
     {
@@ -27,9 +28,10 @@ public static class CreateShareEndpoint
                 type: "/errors/invalid-ttl");
         }
 
-        if (!File.Exists(command.FilePath))
+        // Same answer for "missing" and "outside monitored folder": don't reveal what exists on disk
+        if (!folderGuard.TryResolve(command.FilePath, out var filePath))
         {
-            logger.LogWarning("File not found for share creation: {FilePath}", command.FilePath);
+            logger.LogWarning("Rejected share creation for path: {FilePath}", command.FilePath);
             return TypedResults.Problem(
                 detail: "FILE_NOT_FOUND",
                 statusCode: 422,
@@ -37,7 +39,7 @@ public static class CreateShareEndpoint
                 type: "/errors/file-not-found");
         }
 
-        var fileInfo = new FileInfo(command.FilePath);
+        var fileInfo = new FileInfo(filePath);
         var token = tokenService.Generate();
         DateTime? expiresAt = command.TtlHours.HasValue
             ? DateTime.UtcNow.AddHours(command.TtlHours.Value)
@@ -46,7 +48,7 @@ public static class CreateShareEndpoint
         var share = new Share
         {
             Token = token,
-            FilePath = command.FilePath,
+            FilePath = filePath,
             FileName = fileInfo.Name,
             FileSize = fileInfo.Length,
             ExpiresAt = expiresAt,
@@ -56,7 +58,7 @@ public static class CreateShareEndpoint
         await repo.AddAsync(share, ct);
 
         logger.LogInformation("Share created: token={Token} file={FileName} expiresAt={ExpiresAt}",
-            token, share.FileName, share.ExpiresAt?.ToString("O") ?? "never");
+            TokenFormat.Redact(token), share.FileName, share.ExpiresAt?.ToString("O") ?? "never");
 
         return TypedResults.Created(
             $"/api/v1/shares/{share.Id}",

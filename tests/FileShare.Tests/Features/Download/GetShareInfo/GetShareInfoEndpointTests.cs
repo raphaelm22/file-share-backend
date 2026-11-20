@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using FileShare.Domain;
 using FileShare.Features.Download.GetShareInfo;
 using FileShare.Infrastructure.Data;
+using FileShare.Infrastructure.Security;
 
 namespace FileShare.Tests.Features.Download.GetShareInfo;
 
@@ -53,7 +54,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await GetShareInfoEndpoint.Handle(new string('a', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('a', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var ok = Assert.IsType<Ok<ShareInfoResponse>>(result);
@@ -69,7 +70,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
     {
         // Arrange
         // Act
-        var result = await GetShareInfoEndpoint.Handle(new string('z', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('z', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -93,7 +94,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await GetShareInfoEndpoint.Handle(new string('e', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('e', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -116,7 +117,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await GetShareInfoEndpoint.Handle(new string('f', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('f', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -131,7 +132,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('i', 64),
+            Token = new string('9', 64),
             FilePath = filePath,
             FileName = "infinite.pdf",
             FileSize = 2048,
@@ -140,7 +141,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await GetShareInfoEndpoint.Handle(new string('i', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await GetShareInfoEndpoint.Handle(new string('9', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var ok = Assert.IsType<Ok<ShareInfoResponse>>(result);
