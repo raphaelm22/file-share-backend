@@ -7,7 +7,8 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
-RUN mkdir -p /app/data /app/shared-files
+RUN mkdir -p /app/data /app/shared-files && chown -R $APP_UID:$APP_UID /app/data
 COPY --from=build /app/publish .
 EXPOSE 8080
+USER $APP_UID
 ENTRYPOINT ["dotnet", "FileShare.dll"]

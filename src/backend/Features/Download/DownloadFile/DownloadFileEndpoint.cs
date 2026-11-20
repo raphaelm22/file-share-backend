@@ -1,5 +1,6 @@
 using Ardalis.Specification;
 using FileShare.Domain;
+using FileShare.Infrastructure.Security;
 using Microsoft.AspNetCore.StaticFiles;
 using Wolverine.Http;
 
@@ -11,12 +12,13 @@ public static class DownloadFileEndpoint
     public static async Task<IResult> Handle(
         string token,
         IReadRepositoryBase<Share> repo,
+        MonitoredFolderGuard folderGuard,
         ILoggerFactory loggerFactory,
         CancellationToken ct)
     {
         var logger = loggerFactory.CreateLogger(nameof(DownloadFileEndpoint));
 
-        var (share, error) = await ShareValidation.ValidateToken(token, repo, logger, ct);
+        var (share, error) = await ShareValidation.ValidateToken(token, repo, folderGuard, logger, ct);
         if (error is not null)
             return error;
 
@@ -24,7 +26,7 @@ public static class DownloadFileEndpoint
         if (!provider.TryGetContentType(share!.FileName, out var contentType))
             contentType = "application/octet-stream";
 
-        logger.LogInformation("Serving file download for token: {Token}, file: {FileName}", token, share.FileName);
+        logger.LogInformation("Serving file download for token: {Token}, file: {FileName}", TokenFormat.Redact(token), share.FileName);
 
         return TypedResults.PhysicalFile(
             share.FilePath,

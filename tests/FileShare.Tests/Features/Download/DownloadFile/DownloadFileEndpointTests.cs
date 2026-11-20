@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using FileShare.Domain;
 using FileShare.Features.Download.DownloadFile;
 using FileShare.Infrastructure.Data;
+using FileShare.Infrastructure.Security;
 
 namespace FileShare.Tests.Features.Download.DownloadFile;
 
@@ -53,7 +54,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await DownloadFileEndpoint.Handle(new string('a', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('a', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var fileResult = Assert.IsType<PhysicalFileHttpResult>(result);
@@ -79,7 +80,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await DownloadFileEndpoint.Handle(new string('d', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('d', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var fileResult = Assert.IsType<PhysicalFileHttpResult>(result);
@@ -92,7 +93,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
     {
         // Arrange
         // Act
-        var result = await DownloadFileEndpoint.Handle(new string('x', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('x', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -116,7 +117,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await DownloadFileEndpoint.Handle(new string('b', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('b', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -139,7 +140,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         });
         await _db.SaveChangesAsync();
         // Act
-        var result = await DownloadFileEndpoint.Handle(new string('c', 64), _repo, NullLoggerFactory.Instance, default);
+        var result = await DownloadFileEndpoint.Handle(new string('c', 64), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);

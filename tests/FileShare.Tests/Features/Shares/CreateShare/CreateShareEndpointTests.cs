@@ -47,7 +47,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand(filePath, TtlHours: 24);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var created = Assert.IsType<Created<CreateShareResponse>>(result);
@@ -67,12 +67,37 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand("/nonexistent/file.txt", TtlHours: 24);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
         Assert.Equal(422, problem.StatusCode);
         Assert.Equal("FILE_NOT_FOUND", problem.ProblemDetails.Detail);
+    }
+
+    [Fact]
+    public async Task Handle_FileOutsideMonitoredFolder_Returns422AndPersistsNothing()
+    {
+        // Arrange: file exists, but the monitored folder is a different directory
+        var filePath = CreateTempFile("secret");
+        var otherRoot = Directory.CreateTempSubdirectory().FullName;
+        try
+        {
+            var command = new CreateShareCommand(filePath, TtlHours: 1);
+
+            // Act
+            var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(otherRoot), NullLoggerFactory.Instance, default);
+
+            // Assert: same answer as "missing" so existence isn't leaked
+            var problem = Assert.IsType<ProblemHttpResult>(result);
+            Assert.Equal(422, problem.StatusCode);
+            Assert.Equal("FILE_NOT_FOUND", problem.ProblemDetails.Detail);
+            Assert.Empty(await _db.Shares.ToListAsync());
+        }
+        finally
+        {
+            Directory.Delete(otherRoot, true);
+        }
     }
 
     [Fact]
@@ -83,7 +108,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand(filePath, TtlHours: null);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var created = Assert.IsType<Created<CreateShareResponse>>(result);
@@ -98,7 +123,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand(filePath, TtlHours: 1);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert — CreateShareResponse type has no FilePath property
         var created = Assert.IsType<Created<CreateShareResponse>>(result);
@@ -113,7 +138,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand("/any/file.txt", TtlHours: 0);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -128,7 +153,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand("/any/file.txt", TtlHours: -24);
 
         // Act
-        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var problem = Assert.IsType<ProblemHttpResult>(result);
@@ -144,7 +169,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var command = new CreateShareCommand(filePath, TtlHours: 168);
 
         // Act
-        await CreateShareEndpoint.Handle(command, _repo, _tokenService, NullLoggerFactory.Instance, default);
+        await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
 
         // Assert
         var shares = await _db.Shares.ToListAsync();

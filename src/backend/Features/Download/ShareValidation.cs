@@ -1,6 +1,7 @@
 using Ardalis.Specification;
 using FileShare.Domain;
 using FileShare.Features.Download.GetShareInfo;
+using FileShare.Infrastructure.Security;
 
 namespace FileShare.Features.Download;
 
@@ -9,13 +10,20 @@ public static class ShareValidation
     public static async Task<(Share? Share, IResult? Error)> ValidateToken(
         string token,
         IReadRepositoryBase<Share> repo,
+        MonitoredFolderGuard folderGuard,
         ILogger logger,
         CancellationToken ct)
     {
+        if (!TokenFormat.IsValid(token))
+        {
+            logger.LogWarning("Malformed token rejected: {Token}", TokenFormat.Redact(token));
+            return (null, TokenNotFound());
+        }
+
         var share = await repo.SingleOrDefaultAsync(new ShareByTokenSpec(token), ct);
         if (share is null)
         {
-            logger.LogWarning("Token not found: {Token}", token);
+            logger.LogWarning("Token not found: {Token}", TokenFormat.Redact(token));
             return (null, TokenNotFound());
         }
 
@@ -25,13 +33,14 @@ public static class ShareValidation
 
         if (utcExpiresAt.HasValue && utcExpiresAt.Value <= DateTime.UtcNow)
         {
-            logger.LogWarning("Token expired: {Token}", token);
+            logger.LogWarning("Token expired: {Token}", TokenFormat.Redact(token));
             return (null, ShareExpired());
         }
 
-        if (!File.Exists(share.FilePath))
+        // Re-checked on every request: covers old rows and symlinks swapped after creation
+        if (!folderGuard.TryResolve(share.FilePath, out _))
         {
-            logger.LogWarning("File not found on disk for token: {Token}", token);
+            logger.LogWarning("File missing or outside monitored folder for token: {Token}", TokenFormat.Redact(token));
             return (null, FileNotFound());
         }
 

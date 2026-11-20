@@ -61,6 +61,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
         ?? "Data Source=data/fileshare.db"));
 
 builder.Services.AddSingleton<SasTokenService>();
+builder.Services.AddSingleton<MonitoredFolderGuard>();
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     builder.Services.AddSingleton<ISystemMetricsService, WindowsSystemMetricsService>();
 else
@@ -85,6 +86,21 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors();
+
+// Defense in depth: admin surface (/api, /hubs) is LAN/VPN-only. Requests that arrived through the
+// public path (Cloudflare tunnel or public-spa nginx) carry these headers and must never reach it,
+// even if a proxy is misconfigured.
+app.Use(async (ctx, next) =>
+{
+    var isPublicRequest = ctx.Request.Headers.ContainsKey("CF-Connecting-IP")
+        || ctx.Request.Headers.ContainsKey("X-FileShare-Public");
+    if (isPublicRequest && !ctx.Request.Path.StartsWithSegments("/dl"))
+    {
+        ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+    await next();
+});
 
 app.MapWolverineEndpoints();
 app.MapHub<FileShareHub>("/hubs/fileshare");

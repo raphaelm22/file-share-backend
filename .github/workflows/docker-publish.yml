@@ -1,6 +1,7 @@
 name: Build and Push Docker Image
 
 on:
+  pull_request:
   push:
     branches: [main]
 
@@ -8,7 +9,20 @@ env:
   IMAGE_NAME: ghcr.io/raphaelm22/file-share-backend
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test --configuration Release
+
   build-and-push:
+    needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: read
