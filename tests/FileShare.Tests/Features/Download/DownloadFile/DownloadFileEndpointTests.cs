@@ -45,7 +45,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         var filePath = CreateTempFile("hello world");
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('a', 64),
+            TokenHash = TokenHashing.Hash(new string('a', 64)),
             FilePath = filePath,
             FileName = "document.pdf",
             FileSize = 11,
@@ -71,7 +71,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         var filePath = CreateTempFile("binary data");
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('d', 64),
+            TokenHash = TokenHashing.Hash(new string('d', 64)),
             FilePath = filePath,
             FileName = "archive.xyz",
             FileSize = 11,
@@ -108,7 +108,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('b', 64),
+            TokenHash = TokenHashing.Hash(new string('b', 64)),
             FilePath = filePath,
             FileName = "old.pdf",
             FileSize = 100,
@@ -131,7 +131,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         // Arrange
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('c', 64),
+            TokenHash = TokenHashing.Hash(new string('c', 64)),
             FilePath = "/does/not/exist/file.zip",
             FileName = "ghost.zip",
             FileSize = 500,
@@ -153,7 +153,7 @@ public sealed class DownloadFileEndpointTests : IDisposable
         var info = new FileInfo(filePath);
         await _db.Shares.AddAsync(new Share
         {
-            Token = token,
+            TokenHash = TokenHashing.Hash(token),
             FilePath = filePath,
             FileName = "report.txt",
             FileSize = info.Length,
@@ -190,5 +190,21 @@ public sealed class DownloadFileEndpointTests : IDisposable
         var problem = Assert.IsType<ProblemHttpResult>(result);
         Assert.Equal(404, problem.StatusCode);
         Assert.Equal("FILE_NOT_FOUND", problem.ProblemDetails.Detail);
+    }
+
+    [Fact]
+    public async Task Handle_TokenHashAsToken_IsNotAccepted()
+    {
+        // Someone holding a DB copy only has hashes: using a hash as the token must not work
+        var token = new string('a', 64);
+        var filePath = CreateTempFile("secret");
+        await _db.Shares.AddAsync(new Share { TokenHash = TokenHashing.Hash(token), FilePath = filePath, FileName = "s.txt", FileSize = 6 });
+        await _db.SaveChangesAsync();
+
+        var withHash = await DownloadFileEndpoint.Handle(TokenHashing.Hash(token), _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+        var withToken = await DownloadFileEndpoint.Handle(token, _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+
+        Assert.Equal(404, Assert.IsType<ProblemHttpResult>(withHash).StatusCode);
+        Assert.IsType<PhysicalFileHttpResult>(withToken);
     }
 }

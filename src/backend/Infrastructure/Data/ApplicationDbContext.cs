@@ -11,8 +11,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Share>()
-            .HasIndex(s => s.Token)
+            .HasIndex(s => s.TokenHash)
             .IsUnique()
-            .HasDatabaseName("IX_Shares_Token");
+            .HasDatabaseName("IX_Shares_TokenHash");
     }
 }

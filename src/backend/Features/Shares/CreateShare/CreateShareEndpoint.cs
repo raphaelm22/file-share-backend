@@ -50,7 +50,7 @@ public static class CreateShareEndpoint
 
         var share = new Share
         {
-            Token = token,
+            TokenHash = TokenHashing.Hash(token),
             FilePath = filePath,
             FileName = requestedName,
             FileSize = fileInfo.Length,
@@ -68,7 +68,7 @@ public static class CreateShareEndpoint
             $"/api/v1/shares/{share.Id}",
             new CreateShareResponse(
                 share.Id,
-                share.Token,
+                token, // returned once, at creation; only the hash is stored
                 share.FileName,
                 share.FileSize,
                 share.ExpiresAt,

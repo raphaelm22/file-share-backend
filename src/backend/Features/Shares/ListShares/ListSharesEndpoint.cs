@@ -27,7 +27,6 @@ public static class ListSharesEndpoint
         var status = ComputeStatus(share, utcExpiresAt);
         return new ListSharesResponse(
             share.Id,
-            share.Token,
             share.FileName,
             share.FileSize,
             utcExpiresAt,
