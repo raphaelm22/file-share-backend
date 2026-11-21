@@ -18,7 +18,15 @@ public static class ListFilesEndpoint
 
         logger.LogInformation("Listing files in monitored folder: {Folder}", folder);
 
-        return Directory.GetFiles(folder, "*", SearchOption.AllDirectories)
+        // Don't follow directory symlinks (loops, escapes) and skip unreadable or hidden entries
+        var options = new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint | FileAttributes.Hidden | FileAttributes.System,
+        };
+
+        return Directory.GetFiles(folder, "*", options)
             .Select(path => (path, rel: Path.GetRelativePath(folder, path)))
             .Where(x => !x.rel.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
                 .Any(segment => segment.StartsWith('.')))

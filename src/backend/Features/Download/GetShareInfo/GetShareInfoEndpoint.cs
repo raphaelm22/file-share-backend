@@ -17,7 +17,7 @@ public static class GetShareInfoEndpoint
     {
         var logger = loggerFactory.CreateLogger(nameof(GetShareInfoEndpoint));
 
-        var (share, error) = await ShareValidation.ValidateToken(token, repo, folderGuard, logger, ct);
+        var (share, _, error) = await ShareValidation.ValidateToken(token, repo, folderGuard, logger, ct);
         if (error is not null)
             return error;
 

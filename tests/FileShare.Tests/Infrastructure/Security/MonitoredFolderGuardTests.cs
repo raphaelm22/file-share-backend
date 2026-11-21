@@ -107,6 +107,52 @@ public sealed class MonitoredFolderGuardTests : IDisposable
         Assert.True(_guard.TryResolve(link, out _));
     }
 
+    [Fact]
+    public void SymlinkChainThroughSymlinkedDirectory_IsRejected()
+    {
+        // vd -> outside; x -> vd/db.sqlite : the final target string looks in-root but isn't
+        Write(_outside, "db.sqlite");
+        var vd = Path.Combine(_root, "vd");
+        if (!TryCreateSymlink(() => Directory.CreateSymbolicLink(vd, _outside))) return;
+        var x = Path.Combine(_root, "x");
+        if (!TryCreateSymlink(() => File.CreateSymbolicLink(x, Path.Combine("vd", "db.sqlite")))) return;
+        Assert.False(_guard.TryResolve(x, out _));
+    }
+
+    [Fact]
+    public void SharedFileSwappedForIndirectLink_IsRejected()
+    {
+        Write(_outside, "db.sqlite");
+        var shared = Write(_root, "plain.txt");
+        Assert.True(_guard.TryResolve(shared, out _));
+
+        var vd = Path.Combine(_root, "vd");
+        if (!TryCreateSymlink(() => Directory.CreateSymbolicLink(vd, _outside))) return;
+        File.Delete(shared);
+        if (!TryCreateSymlink(() => File.CreateSymbolicLink(shared, Path.Combine("vd", "db.sqlite")))) return;
+        Assert.False(_guard.TryResolve(shared, out _));
+    }
+
+    [Fact]
+    public void SymlinkLoop_IsRejected()
+    {
+        var a = Path.Combine(_root, "a");
+        var b = Path.Combine(_root, "b");
+        if (!TryCreateSymlink(() => File.CreateSymbolicLink(a, b))) return;
+        if (!TryCreateSymlink(() => File.CreateSymbolicLink(b, a))) return;
+        Assert.False(_guard.TryResolve(a, out _));
+    }
+
+    [Fact]
+    public void InRootAlias_ResolvesToRealFile()
+    {
+        var target = Write(_root, Path.Combine("docs", "real.txt"));
+        var link = Path.Combine(_root, "alias.txt");
+        if (!TryCreateSymlink(() => File.CreateSymbolicLink(link, Path.Combine("docs", "real.txt")))) return;
+        Assert.True(_guard.TryResolve(link, out var full));
+        Assert.Equal(new FileInfo(target).FullName, full, ignoreCase: OperatingSystem.IsWindows());
+    }
+
     // Windows without developer mode can't create symlinks — skip silently there
     static bool TryCreateSymlink(Action create)
     {

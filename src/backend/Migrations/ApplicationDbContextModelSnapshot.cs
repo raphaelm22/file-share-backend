@@ -28,6 +28,9 @@ namespace FileShare.Migrations
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("FileLastWriteUtc")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("TEXT");
