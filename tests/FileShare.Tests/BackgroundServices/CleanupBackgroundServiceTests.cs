@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using FileShare.BackgroundServices;
 using FileShare.Domain;
+using FileShare.Infrastructure.Security;
 using FileShare.Infrastructure.Data;
 using FileShare.Tests.Infrastructure.FileSystem;
 
@@ -24,7 +25,7 @@ public sealed class CleanupBackgroundServiceTests
     static Share MakeShare(DateTime? expiresAt, string fileName = "test.txt") => new()
     {
         Id = Guid.NewGuid().ToString(),
-        Token = Guid.NewGuid().ToString("N"),
+        TokenHash = TokenHashing.Hash(Guid.NewGuid().ToString("N")),
         FilePath = "/app/shared-files/test.txt",
         FileName = fileName,
         FileSize = 1024,
@@ -69,7 +70,7 @@ public sealed class CleanupBackgroundServiceTests
         Assert.Single(hub.SentMessages);
         Assert.Equal("ShareExpired", hub.SentMessages[0].Method);
         var payload = Assert.IsType<ShareExpiredPayload>(hub.SentMessages[0].Arg);
-        Assert.Equal(expiredShare.Token, payload.Token);
+        Assert.Equal(expiredShare.Id, payload.Id);
         Assert.Equal("report.pdf", payload.FileName);
     }
 
@@ -84,7 +85,7 @@ public sealed class CleanupBackgroundServiceTests
             var share = new Share
             {
                 Id = Guid.NewGuid().ToString(),
-                Token = Guid.NewGuid().ToString("N"),
+                TokenHash = TokenHashing.Hash(Guid.NewGuid().ToString("N")),
                 FilePath = tempFile,
                 FileName = Path.GetFileName(tempFile),
                 FileSize = 0,

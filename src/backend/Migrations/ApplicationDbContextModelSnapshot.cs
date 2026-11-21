@@ -42,15 +42,15 @@ namespace FileShare.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("TokenHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
+                    b.HasIndex("TokenHash")
                         .IsUnique()
-                        .HasDatabaseName("IX_Shares_Token");
+                        .HasDatabaseName("IX_Shares_TokenHash");
 
                     b.ToTable("Shares");
                 });

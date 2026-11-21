@@ -45,7 +45,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('a', 64),
+            TokenHash = TokenHashing.Hash(new string('a', 64)),
             FilePath = filePath,
             FileName = "test.pdf",
             FileSize = 1024,
@@ -85,7 +85,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('e', 64),
+            TokenHash = TokenHashing.Hash(new string('e', 64)),
             FilePath = filePath,
             FileName = "expired.pdf",
             FileSize = 512,
@@ -108,7 +108,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         // Arrange
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('f', 64),
+            TokenHash = TokenHashing.Hash(new string('f', 64)),
             FilePath = "/nonexistent/path/file.pdf",
             FileName = "missing.pdf",
             FileSize = 256,
@@ -132,7 +132,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('9', 64),
+            TokenHash = TokenHashing.Hash(new string('9', 64)),
             FilePath = filePath,
             FileName = "infinite.pdf",
             FileSize = 2048,
@@ -156,7 +156,7 @@ public sealed class GetShareInfoEndpointTests : IDisposable
         var filePath = CreateTempFile();
         await _db.Shares.AddAsync(new Share
         {
-            Token = new string('7', 64),
+            TokenHash = TokenHashing.Hash(new string('7', 64)),
             FilePath = filePath,
             FileName = "json-route.pdf",
             FileSize = 4096,

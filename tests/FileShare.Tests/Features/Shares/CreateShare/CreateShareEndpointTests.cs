@@ -162,6 +162,20 @@ public sealed class CreateShareEndpointTests : IDisposable
     }
 
     [Fact]
+    public async Task Handle_StoresOnlyTheTokenHash()
+    {
+        var filePath = CreateTempFile("content");
+        var command = new CreateShareCommand(filePath, TtlHours: 1);
+
+        var result = await CreateShareEndpoint.Handle(command, _repo, _tokenService, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+
+        var token = Assert.IsType<Created<CreateShareResponse>>(result).Value!.Token;
+        var stored = Assert.Single(await _db.Shares.ToListAsync());
+        Assert.Equal(TokenHashing.Hash(token), stored.TokenHash);
+        Assert.NotEqual(token, stored.TokenHash);
+    }
+
+    [Fact]
     public async Task Handle_FileExists_PersistsShareToRepository()
     {
         // Arrange
@@ -175,7 +189,7 @@ public sealed class CreateShareEndpointTests : IDisposable
         var shares = await _db.Shares.ToListAsync();
         Assert.Single(shares);
         Assert.Equal(Path.GetFileName(filePath), shares[0].FileName);
-        Assert.Equal(64, shares[0].Token.Length);
+        Assert.Matches("^[0-9a-f]{64}$", shares[0].TokenHash);
         Assert.Equal(filePath, shares[0].FilePath);
     }
 }

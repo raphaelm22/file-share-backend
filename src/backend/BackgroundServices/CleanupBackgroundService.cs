@@ -58,7 +58,7 @@ public sealed class CleanupBackgroundService : BackgroundService
         {
             await _hub.Clients.All.SendAsync(
                 "ShareExpired",
-                new ShareExpiredPayload(share.Token, share.FileName),
+                new ShareExpiredPayload(share.Id, share.FileName),
                 ct);
         }
 

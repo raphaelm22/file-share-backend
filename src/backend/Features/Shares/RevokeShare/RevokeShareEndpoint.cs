@@ -1,6 +1,5 @@
 using Ardalis.Specification;
 using FileShare.Domain;
-using FileShare.Infrastructure.Security;
 using Wolverine.Http;
 
 namespace FileShare.Features.Shares.RevokeShare;
@@ -22,8 +21,7 @@ public static class RevokeShareEndpoint
             return TypedResults.NotFound();
 
         await repo.DeleteAsync(share, ct);
-        logger.LogInformation("Share revoked: token={Token} file={FileName}",
-            TokenFormat.Redact(share.Token), share.FileName);
+        logger.LogInformation("Share revoked: id={ShareId} file={FileName}", share.Id, share.FileName);
 
         return TypedResults.NoContent();
     }

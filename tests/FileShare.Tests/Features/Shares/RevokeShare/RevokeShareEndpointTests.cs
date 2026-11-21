@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using FileShare.Domain;
+using FileShare.Infrastructure.Security;
 using FileShare.Features.Shares.RevokeShare;
 using FileShare.Infrastructure.Data;
 
@@ -26,7 +27,7 @@ public sealed class RevokeShareEndpointTests : IDisposable
     [Fact]
     public async Task Handle_ExistingShare_DeletesItAndReturns204()
     {
-        var share = new Share { Token = new string('a', 64), FilePath = "/x", FileName = "x" };
+        var share = new Share { TokenHash = TokenHashing.Hash(new string('a', 64)), FilePath = "/x", FileName = "x" };
         await _db.Shares.AddAsync(share);
         await _db.SaveChangesAsync();
 
