@@ -1,6 +1,7 @@
 using Ardalis.Specification;
 using Wolverine.Http;
 using FileShare.Domain;
+using FileShare.Features.Download;
 
 namespace FileShare.Features.Shares.ListShares;
 
@@ -38,7 +39,9 @@ public static class ListSharesEndpoint
     {
         if (utcExpiresAt.HasValue && utcExpiresAt.Value <= DateTime.UtcNow)
             return "expired";
-        if (!File.Exists(share.FilePath))
+        var file = new FileInfo(share.FilePath);
+        // A different file at the same path is not the shared one: report it as removed
+        if (!file.Exists || !ShareValidation.MatchesSharedFile(share, file))
             return "file-removed";
         return "active";
     }

@@ -18,7 +18,7 @@ public static class DownloadFileEndpoint
     {
         var logger = loggerFactory.CreateLogger(nameof(DownloadFileEndpoint));
 
-        var (share, error) = await ShareValidation.ValidateToken(token, repo, folderGuard, logger, ct);
+        var (share, resolvedPath, error) = await ShareValidation.ValidateToken(token, repo, folderGuard, logger, ct);
         if (error is not null)
             return error;
 
@@ -28,8 +28,9 @@ public static class DownloadFileEndpoint
 
         logger.LogInformation("Serving file download for token: {Token}, file: {FileName}", TokenFormat.Redact(token), share.FileName);
 
+        // Serve the path the guard just resolved (no symlink components), not the stored one
         return TypedResults.PhysicalFile(
-            share.FilePath,
+            resolvedPath,
             contentType,
             share.FileName,
             enableRangeProcessing: true);

@@ -147,4 +147,48 @@ public sealed class DownloadFileEndpointTests : IDisposable
         Assert.Equal(404, problem.StatusCode);
         Assert.Equal("FILE_NOT_FOUND", problem.ProblemDetails.Detail);
     }
+
+    async Task<string> AddSnapshotShare(string token, string filePath)
+    {
+        var info = new FileInfo(filePath);
+        await _db.Shares.AddAsync(new Share
+        {
+            Token = token,
+            FilePath = filePath,
+            FileName = "report.txt",
+            FileSize = info.Length,
+            FileLastWriteUtc = info.LastWriteTimeUtc,
+            CreatedAt = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+        return token;
+    }
+
+    [Fact]
+    public async Task Handle_UnchangedSharedFile_IsServed()
+    {
+        var filePath = CreateTempFile("VERSION-A");
+        var token = await AddSnapshotShare(new string('e', 64), filePath);
+
+        var result = await DownloadFileEndpoint.Handle(token, _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+
+        Assert.IsType<PhysicalFileHttpResult>(result);
+    }
+
+    [Fact]
+    public async Task Handle_FileReplacedAtSamePath_Returns404()
+    {
+        // Regression: a link must not revive and serve a different file written at the shared path
+        var filePath = CreateTempFile("VERSION-A");
+        var token = await AddSnapshotShare(new string('f', 64), filePath);
+        File.Delete(filePath);
+        File.WriteAllText(filePath, "VERSION-B-different");
+        File.SetLastWriteTimeUtc(filePath, DateTime.UtcNow.AddMinutes(5));
+
+        var result = await DownloadFileEndpoint.Handle(token, _repo, new MonitoredFolderGuard(Path.GetTempPath()), NullLoggerFactory.Instance, default);
+
+        var problem = Assert.IsType<ProblemHttpResult>(result);
+        Assert.Equal(404, problem.StatusCode);
+        Assert.Equal("FILE_NOT_FOUND", problem.ProblemDetails.Detail);
+    }
 }

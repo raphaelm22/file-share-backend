@@ -21,10 +21,18 @@ public static class GetDirectoryTreeEndpoint
         return new GetDirectoryTreeResponse(root);
     }
 
+    // Symlinked directories are skipped: following them can loop forever or leave the root
+    static readonly EnumerationOptions TreeOptions = new()
+    {
+        IgnoreInaccessible = true,
+        AttributesToSkip = FileAttributes.ReparsePoint | FileAttributes.Hidden | FileAttributes.System,
+    };
+
     static DirectoryNode BuildTree(string absolutePath, string relativePath)
     {
         var name = Path.GetFileName(absolutePath) is { Length: > 0 } n ? n : absolutePath;
-        var subdirs = Directory.GetDirectories(absolutePath)
+        var subdirs = Directory.GetDirectories(absolutePath, "*", TreeOptions)
+            .Where(d => !Path.GetFileName(d).StartsWith('.'))
             .OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
             .Select(d =>
             {

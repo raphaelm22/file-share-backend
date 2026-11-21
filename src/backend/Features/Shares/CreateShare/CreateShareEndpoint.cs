@@ -39,7 +39,10 @@ public static class CreateShareEndpoint
                 type: "/errors/file-not-found");
         }
 
+        // filePath is the resolved file; size and last-write identify it (link sizes would be wrong).
+        // Keep the name the admin picked, which may be an in-root alias.
         var fileInfo = new FileInfo(filePath);
+        var requestedName = Path.GetFileName(Path.GetFullPath(command.FilePath!));
         var token = tokenService.Generate();
         DateTime? expiresAt = command.TtlHours.HasValue
             ? DateTime.UtcNow.AddHours(command.TtlHours.Value)
@@ -49,8 +52,9 @@ public static class CreateShareEndpoint
         {
             Token = token,
             FilePath = filePath,
-            FileName = fileInfo.Name,
+            FileName = requestedName,
             FileSize = fileInfo.Length,
+            FileLastWriteUtc = fileInfo.LastWriteTimeUtc,
             ExpiresAt = expiresAt,
             CreatedAt = DateTime.UtcNow,
         };
